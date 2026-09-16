@@ -5,15 +5,58 @@
 
 #include "brave/ios/browser/ui/webui/brave_account/brave_account_ui_ios.h"
 
+#import <UIKit/UIKit.h>
+
 #include <utility>
 
 #include "base/functional/bind.h"
+#include "base/strings/sys_string_conversions.h"
 #include "brave/components/password_strength_meter/password_strength_meter.mojom.h"
+#include "brave/ios/browser/brave_account/brave_account_dialog_opening.h"
 #include "brave/ios/browser/ui/webui/brave_account/dialog_mode_holder.h"
 #include "ios/chrome/browser/shared/model/profile/profile_ios.h"
 #include "ios/web/public/web_state.h"
 #include "ios/web/public/webui/web_ui_ios.h"
 #include "url/gurl.h"
+
+namespace {
+
+UIViewController* GetParentControllerFromView(UIView* view) {
+  UIResponder* next_responder = [view nextResponder];
+  if ([next_responder isKindOfClass:[UIViewController class]]) {
+    return static_cast<UIViewController*>(next_responder);
+  }
+
+  if ([next_responder isKindOfClass:[UIView class]]) {
+    return GetParentControllerFromView(static_cast<UIView*>(next_responder));
+  }
+
+  return nil;
+}
+
+// The controller owning the page is a generic WebUI host that knows nothing
+// about Brave Account, so walk up the presentation chain to whoever opened it -
+// the settings screen the rows were opened from. Each step also checks the
+// controller's children, since screens are presented wrapped in a
+// UINavigationController, which is what `presentingViewController` returns.
+id<BraveAccountDialogOpening> GetDialogOpenerFromView(UIView* view) {
+  for (UIViewController* controller = GetParentControllerFromView(view);
+       controller; controller = controller.presentingViewController) {
+    if ([controller conformsToProtocol:@protocol(BraveAccountDialogOpening)]) {
+      return static_cast<id<BraveAccountDialogOpening>>(controller);
+    }
+
+    for (UIViewController* child in controller.childViewControllers) {
+      if ([child conformsToProtocol:@protocol(BraveAccountDialogOpening)]) {
+        return static_cast<id<BraveAccountDialogOpening>>(child);
+      }
+    }
+  }
+
+  return nil;
+}
+
+}  // namespace
 
 BraveAccountUIIOS::BraveAccountUIIOS(web::WebUIIOS* web_ui, const GURL& url)
     : BraveAccountUIBase(ProfileIOS::FromWebUIIOS(web_ui), url),
@@ -27,6 +70,24 @@ BraveAccountUIIOS::~BraveAccountUIIOS() {
   RemoveInterface<brave_account::mojom::Authentication>();
   RemoveInterface<brave_account::mojom::DialogController>();
   RemoveInterface<password_strength_meter::mojom::PasswordStrengthMeter>();
+}
+
+void BraveAccountUIIOS::OpenDialog(
+    const std::string& initiating_service_name,
+    brave_account::mojom::DialogMode dialog_mode) {
+  id<BraveAccountDialogOpening> opener =
+      GetDialogOpenerFromView(web_ui()->GetWebState()->GetView());
+  if (!opener) {
+    return;
+  }
+
+  [opener
+      openBraveAccountDialogWithInitiatingServiceName:
+          base::SysUTF8ToNSString(initiating_service_name)
+                                           dialogMode:
+                                               static_cast<
+                                                   BraveAccountDialogMode>(
+                                                   dialog_mode)];
 }
 
 void BraveAccountUIIOS::CloseDialog() {

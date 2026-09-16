@@ -10,6 +10,7 @@
 #include "base/check.h"
 #include "base/check_deref.h"
 #include "brave/browser/brave_account/dialog_mode_holder.h"
+#include "brave/browser/ui/android/brave_account/brave_account_dialog_launcher_helper.h"
 #include "brave/components/brave_account/features.h"
 #include "brave/components/constants/webui_url_constants.h"
 #include "chrome/browser/profiles/profile.h"
@@ -33,13 +34,21 @@ void BraveAccountUIAndroid::BindInterface(
   receiver_.Bind(std::move(pending_receiver));
 }
 
+void BraveAccountUIAndroid::OpenDialog(
+    const std::string& initiating_service_name,
+    brave_account::mojom::DialogMode dialog_mode) {
+  brave_account::ShowBraveAccountDialog(
+      CHECK_DEREF(CHECK_DEREF(web_ui()).GetWebContents()),
+      initiating_service_name, dialog_mode);
+}
+
 void BraveAccountUIAndroid::CloseDialog() {
   web_ui()->GetWebContents()->Close();
 }
 
 void BraveAccountUIAndroid::GetDialogMode(GetDialogModeCallback callback) {
   std::move(callback).Run(brave_account::DialogModeHolder::GetDialogMode(
-      CHECK_DEREF(web_ui()->GetWebContents())));
+      CHECK_DEREF(CHECK_DEREF(web_ui()).GetWebContents())));
 }
 
 WEB_UI_CONTROLLER_TYPE_IMPL(BraveAccountUIAndroid)
