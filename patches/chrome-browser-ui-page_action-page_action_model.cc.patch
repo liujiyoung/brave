@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/page_action/page_action_model.cc b/chrome/browser/ui/page_action/page_action_model.cc
-index 4c7f6f84d819a9e42cc2afa47558228645d4613e..de0053de7674f61010c46944c763de09b4a71174 100644
+index 4c7f6f84d819a9e42cc2afa47558228645d4613e..a1fab25115a8fa37c9b9c8c199aade84c6935d21 100644
 --- a/chrome/browser/ui/page_action/page_action_model.cc
 +++ b/chrome/browser/ui/page_action/page_action_model.cc
 @@ -16,19 +16,19 @@ namespace {
@@ -401,7 +401,7 @@ index 4c7f6f84d819a9e42cc2afa47558228645d4613e..de0053de7674f61010c46944c763de09
      PageActionPassKey,
      std::optional<ui::ColorId> override_background_color_id) {
    if (override_background_color_id_ == override_background_color_id) {
-@@ -438,7 +438,7 @@ void PageActionModel::SetOverrideBackgroundColorId(
+@@ -438,12 +438,12 @@ void PageActionModel::SetOverrideBackgroundColorId(
    NotifyChange(Property::kOverrideBackgroundColor);
  }
  
@@ -409,4 +409,19 @@ index 4c7f6f84d819a9e42cc2afa47558228645d4613e..de0053de7674f61010c46944c763de09
 +std::optional<ui::ColorId> PageActionModel_ChromiumImpl::GetOverrideBackgroundColorId()
      const {
    return override_background_color_id_;
+ }
+ 
+-void PageActionModel::SetOverrideForegroundColorId(
++void PageActionModel_ChromiumImpl::SetOverrideForegroundColorId(
+     PageActionPassKey,
+     std::optional<ui::ColorId> override_foreground_color_id) {
+   if (override_foreground_color_id_ == override_foreground_color_id) {
+@@ -453,7 +453,7 @@ void PageActionModel::SetOverrideForegroundColorId(
+   NotifyChange(Property::kOverrideForegroundColor);
+ }
+ 
+-std::optional<ui::ColorId> PageActionModel::GetOverrideForegroundColorId()
++std::optional<ui::ColorId> PageActionModel_ChromiumImpl::GetOverrideForegroundColorId()
+     const {
+   return override_foreground_color_id_;
  }
