@@ -21,6 +21,7 @@
 #define ChromeBrowserMainPartsMac BraveBrowserMainPartsMac
 #endif  // BUILDFLAG(IS_MAC)
 
+#if BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_UPDATER)
 namespace {
 
 // Most macOS users are still updated by Sparkle, which manages promotion
@@ -34,6 +35,7 @@ bool ShouldPromptUpdaterPromotion() {
 }
 
 }  // namespace
+#endif  // BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_UPDATER)
 
 #define BrowserProcessImpl BraveBrowserProcessImpl
 #define ChromeBrowserMainParts ChromeBrowserMainParts_ChromiumImpl
