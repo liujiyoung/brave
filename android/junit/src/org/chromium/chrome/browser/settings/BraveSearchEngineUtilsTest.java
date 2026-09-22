@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,7 +70,6 @@ public class BraveSearchEngineUtilsTest {
     }
 
     @Test
-    @SmallTest
     public void testDefaultSearchEngineIsGoogleWithoutSearchChoiceFlag() {
         // When SEARCH_CHOICE_SCREEN_INSTALL flag is not set (default behavior)
         // the default search engine should be whatever the system default is (Google in this mock)
@@ -89,7 +86,6 @@ public class BraveSearchEngineUtilsTest {
     }
 
     @Test
-    @SmallTest
     public void testDefaultSearchEngineIsBraveWithSearchChoiceFlag() {
         // When SEARCH_CHOICE_SCREEN_INSTALL flag is set to true
         // the default search engine should be Brave Search
@@ -109,7 +105,6 @@ public class BraveSearchEngineUtilsTest {
     }
 
     @Test
-    @SmallTest
     public void testDSEPrefsNotOverwrittenOnSubsequentCalls() {
         // First initialization without the flag
         BraveSearchEngineUtils.initializeDSEPrefsForTesting(mProfile);
