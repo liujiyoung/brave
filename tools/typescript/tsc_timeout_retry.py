@@ -73,7 +73,7 @@ class _RetryPopen:
         raise AssertionError('unreachable')
 
     def communicate(self, *args, **kwargs):
-        if 'timeout' in kwargs:
+        if len(args) >= 2 or kwargs.get('timeout') is not None:
             return self._process.communicate(*args, **kwargs)
 
         return self._retry_until_done(
