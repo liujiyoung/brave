@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/page_action/page_action_controller.cc b/chrome/browser/ui/page_action/page_action_controller.cc
-index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b83097ae73e5 100644
+index 0de06f04779dcf8bb9856219e01186e69de648bf..0d6d3d0f28593b978efef9c825fdeaf2dc0d1977 100644
 --- a/chrome/browser/ui/page_action/page_action_controller.cc
 +++ b/chrome/browser/ui/page_action/page_action_controller.cc
 @@ -81,7 +81,7 @@ void ScopedPageActionActivity::RegisterWillDestroyControllerCallback() {
@@ -311,7 +311,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
    auto& model = FindPageActionModel(action_id);
    model.SetOverrideImage(PageActionPassKey(),
                           /*override_image=*/std::nullopt,
-@@ -432,77 +432,77 @@ void PageActionControllerImpl::ClearOverrideImage(actions::ActionId action_id) {
+@@ -432,84 +432,84 @@ void PageActionControllerImpl::ClearOverrideImage(actions::ActionId action_id) {
                           /*animation_parameters=*/std::nullopt);
  }
  
@@ -365,6 +365,14 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
        PageActionPassKey(), override_background_color_id);
  }
  
+-void PageActionControllerImpl::OverrideForegroundColor(
++void PageActionControllerImpl_ChromiumImpl::OverrideForegroundColor(
+     actions::ActionId action_id,
+     std::optional<ui::ColorId> override_foreground_color_id) {
+   FindPageActionModel(action_id).SetOverrideForegroundColorId(
+       PageActionPassKey(), override_foreground_color_id);
+ }
+ 
 -void PageActionControllerImpl::SetAnchoredMessageText(
 +void PageActionControllerImpl_ChromiumImpl::SetAnchoredMessageText(
      actions::ActionId action_id,
@@ -401,7 +409,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      actions::ActionId action_id,
      AnchoredMessageActionIconType action_icon_type,
      std::unique_ptr<ui::SimpleMenuModel> model) {
-@@ -516,11 +516,11 @@ void PageActionControllerImpl::SetAnchoredMessageAction(
+@@ -523,11 +523,11 @@ void PageActionControllerImpl::SetAnchoredMessageAction(
        PageActionPassKey(), action_icon_type, std::move(model));
  }
  
@@ -415,7 +423,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      actions::ActionId action_id,
      base::ScopedObservation<PageActionModelInterface, PageActionModelObserver>&
          observation) {
-@@ -528,17 +528,17 @@ void PageActionControllerImpl::AddObserver(
+@@ -535,17 +535,17 @@ void PageActionControllerImpl::AddObserver(
  }
  
  base::CallbackListSubscription
@@ -436,7 +444,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      bool should_hide_page_actions) {
    for (auto& [id, model] : page_actions_) {
      model->SetIsSuppressedByOmnibox(PageActionPassKey(),
-@@ -546,11 +546,11 @@ void PageActionControllerImpl::SetShouldHidePageActions(
+@@ -553,11 +553,11 @@ void PageActionControllerImpl::SetShouldHidePageActions(
    }
  }
  
@@ -450,7 +458,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
    PinnedToolbarActionsModel* pinned_actions_model =
        pinned_actions_observation_.GetSource();
    CHECK(pinned_actions_model);
-@@ -560,7 +560,7 @@ void PageActionControllerImpl::PinnedActionsModelChanged() {
+@@ -567,7 +567,7 @@ void PageActionControllerImpl::PinnedActionsModelChanged() {
    }
  }
  
@@ -459,7 +467,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      actions::ActionId action_id) const {
    auto id_to_model = page_actions_.find(action_id);
    CHECK(id_to_model != page_actions_.end());
-@@ -568,7 +568,7 @@ PageActionModelInterface& PageActionControllerImpl::FindPageActionModel(
+@@ -575,7 +575,7 @@ PageActionModelInterface& PageActionControllerImpl::FindPageActionModel(
    return *id_to_model->second.get();
  }
  
@@ -468,7 +476,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      actions::ActionId action_id,
      bool is_ephemeral) {
    if (page_action_model_factory_ != nullptr) {
-@@ -579,7 +579,7 @@ std::unique_ptr<PageActionModelInterface> PageActionControllerImpl::CreateModel(
+@@ -586,7 +586,7 @@ std::unique_ptr<PageActionModelInterface> PageActionControllerImpl::CreateModel(
  }
  
  std::unique_ptr<PageActionMetricsRecorderInterface>
@@ -477,7 +485,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
      tabs::TabInterface& tab_interface,
      VisibleEphemeralPageActionsCountCallback
          visible_ephemeral_page_actions_count_callback) {
-@@ -594,37 +594,37 @@ PageActionControllerImpl::CreateMetricsRecorder(
+@@ -601,37 +601,37 @@ PageActionControllerImpl::CreateMetricsRecorder(
    }
  }
  
@@ -524,7 +532,7 @@ index 653ada80e6cbf3e9cdfe1204d3a0d7de14fade76..8531e82b89fbeb8c72ea697c11e0b830
    int visible_ephemeral_page_actions_count = 0;
    for (auto& [id, model] : page_actions_) {
      if (model->GetVisible() && model->IsEphemeral()) {
-@@ -635,19 +635,19 @@ int PageActionControllerImpl::GetVisibleEphemeralPageActionsCount() const {
+@@ -642,19 +642,19 @@ int PageActionControllerImpl::GetVisibleEphemeralPageActionsCount() const {
  }
  
  base::CallbackListSubscription
