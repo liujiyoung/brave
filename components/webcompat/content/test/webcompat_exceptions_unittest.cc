@@ -19,8 +19,8 @@
 #include "components/content_settings/core/common/content_settings.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "content/public/test/browser_task_environment.h"
-#include "url/origin.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "url/origin.h"
 
 using brave_shields::ControlType;
 using content_settings::mojom::ContentSettingsType;
