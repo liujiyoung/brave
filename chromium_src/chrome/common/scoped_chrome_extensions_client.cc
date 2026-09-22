@@ -5,17 +5,53 @@
 
 #include "chrome/common/scoped_chrome_extensions_client.h"
 
+#include "base/command_line.h"
 #include "brave/common/extensions/brave_extensions_client.h"
+#include "content/public/common/content_switches.h"
 
 namespace extensions {
 namespace {
 
-// The instance that owns the process-wide ExtensionsClient, if any. With
+// The instance that owns the process-wide ExtensionsClient while it is being
+// shared, if any. See ShouldShareProcessWideClient() below.
+const ScopedChromeExtensionsClient* g_process_wide_client_owner = nullptr;
+
+// ExtensionsClient::Set() only accepts one client per process, but with
 // `--single-process` both BrowserProcessImpl and ChromeContentRendererClient
 // are created in the browser process, and each one of them creates a
-// ScopedChromeExtensionsClient, whereas ExtensionsClient::Set() only accepts
-// one client per process.
-const ScopedChromeExtensionsClient* g_process_wide_client_owner = nullptr;
+// ScopedChromeExtensionsClient. Share the client between them, but only in
+// browser tests, one of which needs `--single-process` to control the
+// renderer's approximated device memory. Production keeps upstream's
+// one-instance-per-process behavior.
+bool ShouldShareProcessWideClient() {
+  const auto* const command_line = base::CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(::switches::kSingleProcess) &&
+         command_line->HasSwitch(::switches::kBrowserTest);
+}
+
+// Returns true if `instance` should register the process-wide client.
+bool ClaimProcessWideClient(const ScopedChromeExtensionsClient* instance) {
+  if (!ShouldShareProcessWideClient()) {
+    return true;
+  }
+  if (g_process_wide_client_owner) {
+    return false;
+  }
+  g_process_wide_client_owner = instance;
+  return true;
+}
+
+// Returns true if `instance` should unregister the process-wide client.
+bool ReleaseProcessWideClient(const ScopedChromeExtensionsClient* instance) {
+  if (!ShouldShareProcessWideClient()) {
+    return true;
+  }
+  if (g_process_wide_client_owner != instance) {
+    return false;
+  }
+  g_process_wide_client_owner = nullptr;
+  return true;
+}
 
 }  // namespace
 }  // namespace extensions
