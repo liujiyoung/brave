@@ -7,11 +7,8 @@ substitutions:
   - description: |
       Reinstall via `BraveGetUpdateUrl()` instead of Chrome's redirect URL.
 
-      Swap the URL passed to `OpenURLParams::CreateBrowserInitiated()` in
-      `OnDialogAccepted()` for `BraveGetUpdateUrl()` (defined in the
-      chromium_src shadow), which builds the download URL for Brave's channel
-      instead of Chrome's.
+      Patched at the source of `update_url`, not at its use in
+      `OnDialogAccepted()`, so that parameter stays in genuine use.
     regex:
-      re_pattern: '(OnDialogAccepted\(.*?CreateBrowserInitiated\(\s*)GURL\(update_browser_redirect_url\)'
-      re_flags: [DOTALL]
-      replace: '\1BraveGetUpdateUrl()'
+      re_pattern: 'auto update_url = std::string\(kUpdateBrowserRedirectUrl\)\s*\+\s*GetUpdateUrlChannelSuffix\(chrome::GetChannel\(\)\);'
+      replace: 'auto update_url = BraveGetUpdateUrl().spec();'
