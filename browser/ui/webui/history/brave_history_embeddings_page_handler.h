@@ -20,6 +20,17 @@ class Profile;
 class BraveHistoryEmbeddingsPageHandler
     : public brave_history_embeddings::mojom::PageHandler {
  public:
+  // The two facts the chrome://history UI runs on. A search needs both; the
+  // side bar prompts for a relaunch while they disagree.
+  struct State {
+    bool enabled = false;
+    bool service_exists = false;
+  };
+
+  // The one place the two facts are read, so the pref observer and
+  // BraveHistoryUI's loadTimeData snapshot report the same values.
+  static State GetState(Profile* profile);
+
   BraveHistoryEmbeddingsPageHandler(
       mojo::PendingReceiver<brave_history_embeddings::mojom::PageHandler>
           receiver,
