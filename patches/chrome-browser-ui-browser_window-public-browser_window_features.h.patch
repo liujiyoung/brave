@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/browser_window/public/browser_window_features.h b/chrome/browser/ui/browser_window/public/browser_window_features.h
-index 309eced7f092e28c5c9f7119696860068d626ed9..6e955df0e95fad7c4cb582d662e15a7cffa6ebab 100644
+index a39db413ee18a0f0dbb79e0c52959957b97231ae..2b05c5a53f391cb91e59ff2c18f3c4be0ce6759d 100644
 --- a/chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ b/chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -278,29 +278,29 @@ class AppBrowserController;
@@ -41,7 +41,7 @@ index 309eced7f092e28c5c9f7119696860068d626ed9..6e955df0e95fad7c4cb582d662e15a7c
  
    // Get the FindBarController for this browser window, creating it if it does
    // not yet exist.
-@@ -334,6 +334,7 @@ class BrowserWindowFeatures {
+@@ -328,6 +328,7 @@ class BrowserWindowFeatures {
    GetUserDataFactoryForTesting();
  
   private:

@@ -1,5 +1,5 @@
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index 376554339be3568fcd45a807d18b28d1e02545ff..ca004dcd70330ca636a7979126a45ef71290dbd7 100644
+index fba27821e7af95e992dde716a9f12168aeca315f..40ae7e331a159627525df9ce4532f3e2617a9fa6 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
 @@ -286,7 +286,7 @@ BASE_FEATURE_PARAM(

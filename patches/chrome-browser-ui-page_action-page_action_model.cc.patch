@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/page_action/page_action_model.cc b/chrome/browser/ui/page_action/page_action_model.cc
-index 6f0c1dca44e2ae622a03b30e731a0344f2b90453..d5a3c52e017006549f0f9aea9b9a446eb1f98433 100644
+index 4c7f6f84d819a9e42cc2afa47558228645d4613e..de0053de7674f61010c46944c763de09b4a71174 100644
 --- a/chrome/browser/ui/page_action/page_action_model.cc
 +++ b/chrome/browser/ui/page_action/page_action_model.cc
 @@ -16,19 +16,19 @@ namespace {

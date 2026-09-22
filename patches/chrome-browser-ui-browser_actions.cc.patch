@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/ui/browser_actions.cc b/chrome/browser/ui/browser_actions.cc
-index 4fb3fb1a30abfb52356e49e0f46fb9dc9bd1c52b..669d59e5cbc73bd6845e485fe437996739e7e210 100644
+index 3fed7124bddf5077631443d7f81f6b6cafd9e6f1..464b5778c112cb69a8fd8c9bc2a9f7d62179f209 100644
 --- a/chrome/browser/ui/browser_actions.cc
 +++ b/chrome/browser/ui/browser_actions.cc
-@@ -2288,7 +2288,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
+@@ -2287,7 +2287,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
              .SetTooltipText(l10n_util::GetStringUTF16(IDS_APPMENU_TOOLTIP))
              .SetImage(ui::ImageModel::FromVectorIcon(
                  features::IsRoundedIconsEnabled() ? vector_icons::kMicFilledIcon
@@ -11,7 +11,7 @@ index 4fb3fb1a30abfb52356e49e0f46fb9dc9bd1c52b..669d59e5cbc73bd6845e485fe4379967
                  ui::kColorIcon, ui::SimpleMenuModel::kDefaultIconSize))
              .SetProperty(
                  actions::kActionItemPinnableKey,
-@@ -4897,7 +4897,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
+@@ -4904,7 +4904,7 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
              vector_icons::kAudioSparkIcon,
  #else
              features::IsRoundedIconsEnabled() ? vector_icons::kMicFilledIcon

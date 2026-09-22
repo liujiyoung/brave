@@ -1,5 +1,5 @@
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderRegistry.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderRegistry.java
-index b348f48a59a2e7a6658ee1fd085148161cd63816..0a1b0e6604d9f5bfba4c1717226b22fa324fcf36 100644
+index d544a33f48a7afdff72cc64258349081020c5ccc..56b3ed71f76db101ca8556916293935b0fd1fa56 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderRegistry.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderRegistry.java
 @@ -7,7 +7,6 @@ package org.chromium.chrome.browser.settings.search;

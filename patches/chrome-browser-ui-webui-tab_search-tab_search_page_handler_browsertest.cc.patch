@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/webui/tab_search/tab_search_page_handler_browsertest.cc b/chrome/browser/ui/webui/tab_search/tab_search_page_handler_browsertest.cc
-index 806964b180409fb18336b0a953dd77637ade0302..96f043253fb9b6ec550e5bad5bcaa15ffa93facf 100644
+index 7bf0dcecbcdc00678637ea8f966db29f2fc6b258..2b9b7e2e71886f9765f352fccfbb4463aa47ef53 100644
 --- a/chrome/browser/ui/webui/tab_search/tab_search_page_handler_browsertest.cc
 +++ b/chrome/browser/ui/webui/tab_search/tab_search_page_handler_browsertest.cc
 @@ -105,6 +105,8 @@ class MockPage : public tab_search::mojom::Page {

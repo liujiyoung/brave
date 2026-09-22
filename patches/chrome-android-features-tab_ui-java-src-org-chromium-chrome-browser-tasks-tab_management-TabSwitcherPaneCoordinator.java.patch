@@ -1,8 +1,8 @@
 diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabSwitcherPaneCoordinator.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabSwitcherPaneCoordinator.java
-index 58c9a3b20482d1f85bc852cb7d2ecfa3ad6d9849..e6d1e49a3d8b2e9c17c4f82526536dc5eedcd1b8 100644
+index 36e75f61b7153ec6b01690e6da358fb2fca848b5..571ee78fffff617c597c2ac89ae3d56db4f26545 100644
 --- a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabSwitcherPaneCoordinator.java
 +++ b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabSwitcherPaneCoordinator.java
-@@ -583,7 +583,7 @@ public class TabSwitcherPaneCoordinator implements BackPressHandler {
+@@ -587,7 +587,7 @@ public class TabSwitcherPaneCoordinator implements BackPressHandler {
                      recyclerViewTimer.getElapsedMillis());
  
              mTabListEditorManager =
