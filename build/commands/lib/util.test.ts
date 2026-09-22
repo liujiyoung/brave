@@ -6,15 +6,14 @@
 import path from 'node:path'
 import { prefixPatchPaths } from './util.js'
 
-/** @typedef {{path?: string, patchPath: string}} PatchStatus */
+type PatchStatus = { path?: string; patchPath: string }
 
 describe('prefixPatchPaths', function () {
   test('leaves a status carrying no path alone', function () {
     // A patch too malformed to read the files it applies to reports no path,
     // which used to be joined all the same, failing the whole apply with
     // `ERR_INVALID_ARG_TYPE` instead of reporting the patch that broke.
-    /** @type {PatchStatus} */
-    const status = { patchPath: '/patches/broken.patch' }
+    const status: PatchStatus = { patchPath: '/patches/broken.patch' }
 
     expect(() =>
       prefixPatchPaths([status], 'third_party', 'devtools-frontend', 'src'),
@@ -23,8 +22,7 @@ describe('prefixPatchPaths', function () {
   })
 
   test('prefixes the repo onto a status carrying a path', function () {
-    /** @type {PatchStatus} */
-    const status = {
+    const status: PatchStatus = {
       patchPath: '/patches/scripts-build-ts_library.py.patch',
       path: path.join('scripts', 'build', 'ts_library.py'),
     }
@@ -44,10 +42,11 @@ describe('prefixPatchPaths', function () {
   })
 
   test('prefixes only the statuses carrying a path', function () {
-    /** @type {PatchStatus} */
-    const withPath = { patchPath: '/patches/file1.patch', path: 'file1' }
-    /** @type {PatchStatus} */
-    const withoutPath = { patchPath: '/patches/broken.patch' }
+    const withPath: PatchStatus = {
+      patchPath: '/patches/file1.patch',
+      path: 'file1',
+    }
+    const withoutPath: PatchStatus = { patchPath: '/patches/broken.patch' }
 
     prefixPatchPaths([withPath, withoutPath], 'v8')
 
