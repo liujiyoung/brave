@@ -152,8 +152,8 @@ void FaviconDriverObserver::OnFaviconUpdated(
 
   const GURL message_request_url = message.request_url().value();
 
-  std::vector<web::FaviconURL> urls =
-    web::ExtractFaviconURL(message.legacy_body()->GetList(), message_request_url);
+  std::vector<web::FaviconURL> urls = web::ExtractFaviconURL(
+      message.legacy_body()->GetList(), message_request_url);
   if (urls.empty()) {
     return;
   }
