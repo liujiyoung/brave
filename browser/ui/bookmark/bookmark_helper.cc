@@ -82,8 +82,7 @@ void SyncBookmarkBarVisibilityState(PrefService* prefs) {
   auto visibility_state = bookmarks::BookmarkBarVisibilityState::kAlwaysHide;
   if (prefs->GetBoolean(bookmarks::prefs::kShowBookmarkBar)) {
     visibility_state = bookmarks::BookmarkBarVisibilityState::kAlwaysShow;
-  } else if (prefs->GetBoolean(
-                 bookmarks::prefs::kAlwaysShowBookmarkBarOnNTP)) {
+  } else if (prefs->GetBoolean(bookmarks::prefs::kAlwaysShowBookmarkBarOnNTP)) {
     visibility_state = bookmarks::BookmarkBarVisibilityState::kOnlyShowOnNtp;
   }
   prefs->SetInteger(bookmarks::prefs::kBookmarkBarVisibilityState,
