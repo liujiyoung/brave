@@ -11,8 +11,6 @@
 #include "chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.h"
 #include "chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h"
 
-// Used by the plaster on PromptUpdaterPromotion() at
-// brave/rewrite/chrome/browser/chrome_browser_main.cc.yaml.
 #if BUILDFLAG(ENABLE_OMAHA4)
 #include "brave/browser/updater/features.h"
 #endif  // BUILDFLAG(ENABLE_OMAHA4)
@@ -22,6 +20,20 @@
 #undef ChromeBrowserMainPartsMac
 #define ChromeBrowserMainPartsMac BraveBrowserMainPartsMac
 #endif  // BUILDFLAG(IS_MAC)
+
+namespace {
+
+// Most macOS users are still updated by Sparkle, which manages promotion
+// itself, so the Keystone promotion infobar must not reach them.
+bool ShouldPromptUpdaterPromotion() {
+#if BUILDFLAG(ENABLE_OMAHA4)
+  return brave_updater::ShouldUseOmaha4();
+#else
+  return true;
+#endif
+}
+
+}  // namespace
 
 #define BrowserProcessImpl BraveBrowserProcessImpl
 #define ChromeBrowserMainParts ChromeBrowserMainParts_ChromiumImpl
