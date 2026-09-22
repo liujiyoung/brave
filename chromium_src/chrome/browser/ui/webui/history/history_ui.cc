@@ -5,11 +5,10 @@
 
 // Point `enableHistoryEmbeddings` at the setting the embedding services were
 // built with rather than the live pref upstream reads, so the semantic search
-// input shows up only once there is an index behind it. The setting itself
-// lives in brave://settings/privacy and takes effect on relaunch. Hooked
-// via macro substitution of the one-and-only ManagedUIHandler::Initialize()
-// call in the upstream constructor -- by the time it runs the data source has
-// been created and is in scope.
+// input shows up only once there is an index behind it. The setting takes effect
+// on relaunch. Hooked via macro substitution of the one-and-only
+// ManagedUIHandler::Initialize() call in the upstream constructor -- by the time
+// it runs the data source has been created and is in scope.
 
 #include "brave/components/local_ai/buildflags/buildflags.h"
 #include "chrome/browser/profiles/profile.h"

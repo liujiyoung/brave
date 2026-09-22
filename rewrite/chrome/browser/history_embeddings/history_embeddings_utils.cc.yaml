@@ -46,8 +46,7 @@ substitutions:
 
   - description: |-
       Additionally gate IsHistoryEmbeddingsEnabledForProfile on the
-      per-profile kBraveHistoryEmbeddingsEnabled pref backing the
-      Semantic history search toggle in brave://settings/privacy.
+      per-profile kBraveHistoryEmbeddingsEnabled pref.
 
       See ComputeHistoryEmbeddingsEnabledForProfile in the chromium_src
       override for the actual check.
@@ -59,8 +58,8 @@ substitutions:
   - description: |-
       Force IsHistoryEmbeddingsSettingVisible off.
 
-      The per-profile toggle lives in brave://settings/privacy, so the
-      chrome://settings/ai History Search entry is never surfaced.
+      kBraveHistoryEmbeddingsEnabled is surfaced by Brave's own settings UI,
+      so the chrome://settings/ai History Search entry is never surfaced.
     preempt_function_impl:
       function_name: IsHistoryEmbeddingsSettingVisible
       code: |-
