@@ -13,8 +13,8 @@ substitutions:
     after_function_impl:
       function_name: BuildHistoryService
       result_var: built_service
+      lambda_return_type: std::unique_ptr<history::HistoryService>
       code: |-
-        static_cast<history::HistoryService*>(built_service.get())
-            ->InitHistoryRetentionPref(
-                Profile::FromBrowserContext(context)->GetPrefs());
+        built_service->InitHistoryRetentionPref(
+            Profile::FromBrowserContext(context)->GetPrefs());
         return built_service;
