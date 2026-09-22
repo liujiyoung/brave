@@ -33,3 +33,9 @@ GURL BraveGetUpdateUrl() {
 }  // namespace
 
 #include <chrome/browser/ui/dialogs/outdated_upgrade_bubble.cc>
+
+// GetUpdateUrlChannelSuffix becomes unused once update_url is patched to use
+// BraveGetUpdateUrl() instead
+// (rewrite/chrome/browser/ui/dialogs/outdated_upgrade_bubble.cc.yaml).
+[[maybe_unused]] constexpr auto* kUnusedGetUpdateUrlChannelSuffix =
+    &GetUpdateUrlChannelSuffix;
