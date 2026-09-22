@@ -50,7 +50,6 @@ BraveBookmarkContextMenuController::BraveBookmarkContextMenuController(
   if (!browser_) {
     CHECK_IS_TEST();
   }
-  AddBraveBookmarksSubmenu(profile);
   AddShowAllBookmarksButtonMenu();
 #if BUILDFLAG(ENABLE_CONTAINERS)
   if (base::FeatureList::IsEnabled(containers::features::kContainers)) {
@@ -69,60 +68,6 @@ BraveBookmarkContextMenuController::BraveBookmarkContextMenuController(
 
 BraveBookmarkContextMenuController::~BraveBookmarkContextMenuController() =
     default;
-
-void BraveBookmarkContextMenuController::AddBraveBookmarksSubmenu(
-    Profile* profile) {
-  auto index = menu_model()->GetIndexOfCommandId(IDC_BOOKMARK_BAR_ALWAYS_SHOW);
-  if (!index.has_value()) {
-    // With `ntp_features::kNtpSimplificationBookmarkBar` enabled, upstream
-    // nests the bookmark-bar-visibility items and unrelated options (Show
-    // Managed Bookmarks, Toggle Show Tab Groups) inside its own
-    // `IDC_BOOKMARK_BAR_SUBMENU`, instead of adding the latter flat like it
-    // does when the feature is disabled. Hoist the unrelated items back to the
-    // top level so the menu looks and behaves the same either way, then fall
-    // through to replace the now-empty placeholder below.
-    index = menu_model()->GetIndexOfCommandId(IDC_BOOKMARK_BAR_SUBMENU);
-    if (!index.has_value()) {
-      return;
-    }
-    ui::MenuModel* submenu = menu_model()->GetSubmenuModelAt(index.value());
-    size_t insert_at = index.value();
-    for (size_t i = 0; i < submenu->GetItemCount(); ++i) {
-      // Mirrors the string ids upstream itself uses for these commands when
-      // adding them flat (see BookmarkContextMenuController::BuildMenu and
-      // AddSubmenuItems). Labels are resolved lazily via
-      // GetLabelForCommandId, same as upstream, rather than eagerly here,
-      // since e.g. the managed bookmarks label depends on
-      // ManagedBookmarkService which may not be ready yet.
-      int string_id;
-      switch (submenu->GetCommandIdAt(i)) {
-        case IDC_BOOKMARK_BAR_SHOW_APPS_SHORTCUT:
-          string_id = IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT;
-          break;
-        case IDC_BOOKMARK_BAR_TOGGLE_SHOW_TAB_GROUPS:
-          string_id = IDS_BOOKMARK_BAR_SHOW_TAB_GROUPS;
-          break;
-        case IDC_BOOKMARK_BAR_SHOW_MANAGED_BOOKMARKS:
-          string_id = IDS_BOOKMARK_BAR_SHOW_MANAGED_BOOKMARKS_DEFAULT_NAME;
-          break;
-        default:
-          // Visibility items (Always Hide/Show, Only on NTP) and the separator
-          // are dropped; Brave's own submenu replaces them.
-          continue;
-      }
-      menu_model()->InsertCheckItemWithStringIdAt(
-          insert_at++, submenu->GetCommandIdAt(i), string_id);
-    }
-    index = insert_at;
-  }
-  menu_model()->RemoveItemAt(index.value());
-  brave_bookmarks_submenu_model_ =
-      std::make_unique<BookmarkBarSubMenuModel>(profile);
-
-  menu_model()->InsertSubMenuWithStringIdAt(
-      index.value(), IDC_BRAVE_BOOKMARK_BAR_SUBMENU, IDS_SHOW_BOOKMARK_BAR,
-      brave_bookmarks_submenu_model_.get());
-}
 
 #if BUILDFLAG(ENABLE_CONTAINERS)
 void BraveBookmarkContextMenuController::MaybeAddContainersBookmarkSubmenu(
@@ -170,11 +115,6 @@ void BraveBookmarkContextMenuController::MaybeAddContainersBookmarkSubmenu(
 
 bool BraveBookmarkContextMenuController::IsCommandIdChecked(
     int command_id) const {
-  if (brave_bookmarks_submenu_model_ &&
-      brave_bookmarks_submenu_model_->GetIndexOfCommandId(command_id)) {
-    return brave_bookmarks_submenu_model_->IsCommandIdChecked(command_id);
-  }
-
   if (command_id == IDC_TOGGLE_ALL_BOOKMARKS_BUTTON_VISIBILITY) {
     // Even test sets prefs for testing, there could be timing when prefs_ is
     // nullptr on creation.
@@ -201,11 +141,6 @@ bool BraveBookmarkContextMenuController::IsCommandIdChecked(
 
 bool BraveBookmarkContextMenuController::IsCommandIdEnabled(
     int command_id) const {
-  if (brave_bookmarks_submenu_model_ &&
-      brave_bookmarks_submenu_model_->GetIndexOfCommandId(command_id)) {
-    return brave_bookmarks_submenu_model_->IsCommandIdEnabled(command_id);
-  }
-
   if (command_id == IDC_TOGGLE_ALL_BOOKMARKS_BUTTON_VISIBILITY) {
     return true;
   }
@@ -226,11 +161,6 @@ bool BraveBookmarkContextMenuController::IsCommandIdEnabled(
 
 bool BraveBookmarkContextMenuController::IsCommandIdVisible(
     int command_id) const {
-  if (brave_bookmarks_submenu_model_ &&
-      brave_bookmarks_submenu_model_->GetIndexOfCommandId(command_id)) {
-    return brave_bookmarks_submenu_model_->IsCommandIdVisible(command_id);
-  }
-
   if (command_id == IDC_TOGGLE_ALL_BOOKMARKS_BUTTON_VISIBILITY) {
     // If the 'Other Bookmarks' node has no children, then hiding the 'Show all
     // bookmarks button' option from drop down as showing the option and the
@@ -255,12 +185,6 @@ bool BraveBookmarkContextMenuController::IsCommandIdVisible(
 
 void BraveBookmarkContextMenuController::ExecuteCommand(int command_id,
                                                         int event_flags) {
-  if (brave_bookmarks_submenu_model_ &&
-      brave_bookmarks_submenu_model_->GetIndexOfCommandId(command_id)) {
-    brave_bookmarks_submenu_model_->ExecuteCommand(command_id, event_flags);
-    return;
-  }
-
   if (command_id == IDC_TOGGLE_ALL_BOOKMARKS_BUTTON_VISIBILITY) {
     if (!browser_) {
       CHECK_IS_TEST();
@@ -284,11 +208,6 @@ void BraveBookmarkContextMenuController::ExecuteCommand(int command_id,
 
 std::u16string BraveBookmarkContextMenuController::GetLabelForCommandId(
     int command_id) const {
-  if (brave_bookmarks_submenu_model_ &&
-      brave_bookmarks_submenu_model_->GetIndexOfCommandId(command_id)) {
-    return brave_bookmarks_submenu_model_->GetLabelForCommandId(command_id);
-  }
-
   if (command_id == IDC_TOGGLE_ALL_BOOKMARKS_BUTTON_VISIBILITY) {
     return l10n_util::GetStringUTF16(IDS_SHOW_ALL_BOOKMARKS_BUTTON);
   }
@@ -305,11 +224,6 @@ std::u16string BraveBookmarkContextMenuController::GetLabelForCommandId(
 #endif  // BUILDFLAG(ENABLE_CONTAINERS)
 
   return BookmarkContextMenuController::GetLabelForCommandId(command_id);
-}
-
-BookmarkBarSubMenuModel*
-BraveBookmarkContextMenuController::GetBookmarkSubmenuModel() {
-  return brave_bookmarks_submenu_model_.get();
 }
 
 #if BUILDFLAG(ENABLE_CONTAINERS)
