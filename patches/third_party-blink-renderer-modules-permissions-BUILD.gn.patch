@@ -6,7 +6,7 @@ index 5809817f9e11993f145fd48288a523d2b350cb95..5265bca4ca54c9c3b191db4381845b2a
      "permissions.cc",
      "permissions.h",
    ]
-+  import("//brave/components/brave_wallet/sources.gni") deps = brave_blink_renderer_modules_permissions_deps
++  import("//brave/third_party/blink/renderer/modules/permissions/sources.gni") deps = brave_blink_renderer_modules_permissions_deps
  }
  
  source_set("unit_tests") {

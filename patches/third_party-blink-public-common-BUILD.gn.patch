@@ -6,7 +6,7 @@ index d2881c7a2963af011a220050327f4178827e2953..ced3baa04acb8a79224bf99a2b80bc41
    if (is_mac) {
      sources += [ "sandbox_support/sandbox_support_mac.h" ]
    }
-+  import("//brave/components/brave_wallet/sources.gni") deps += brave_blink_public_common_deps
++  import("//brave/third_party/blink/public/common/sources.gni") deps += brave_blink_public_common_deps
  }
  
  if (is_android || is_win) {
