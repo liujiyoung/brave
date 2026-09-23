@@ -39,9 +39,8 @@ BraveHistoryUI::BraveHistoryUI(content::WebUI* web_ui) : HistoryUI(web_ui) {
   auto state = BraveHistoryEmbeddingsPageHandler::GetState(profile);
   update.Set("braveHistoryEmbeddingsEnabled", state.enabled);
   // Upstream gates its calls into the embeddings service on this.
-  update.Set("enableHistoryEmbeddings", state.enabled && state.service_exists);
-  update.Set("braveHistoryEmbeddingsNeedsRestart",
-             state.enabled != state.service_exists);
+  update.Set("enableHistoryEmbeddings", state.search_enabled());
+  update.Set("braveHistoryEmbeddingsNeedsRestart", state.needs_restart);
 #else
   update.Set("braveHistoryEmbeddingsEnabled", false);
   update.Set("braveHistoryEmbeddingsNeedsRestart", false);

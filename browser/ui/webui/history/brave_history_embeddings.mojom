@@ -28,10 +28,9 @@ interface PageHandler {
 interface Page {
   // `enabled` is the setting itself, which is what the toggle shows.
   //
-  // `service_exists` is whether this session has an embeddings service. It is
-  // built at most once, from the setting captured at profile setup, so the
-  // setting turning on cannot conjure one, and it is false for profiles that
-  // never get a service, such as ephemeral ones. A search needs both; the side
-  // bar prompts for a relaunch while the two disagree.
-  OnEnabledChanged(bool enabled, bool service_exists);
+  // `needs_restart` is whether that setting is waiting on a relaunch to take
+  // effect, which is when the side bar offers its "Relaunch" button. A search
+  // needs the setting on with nothing pending, so turning the toggle on cannot
+  // start one against a service that was never built.
+  OnEnabledChanged(bool enabled, bool needs_restart);
 };

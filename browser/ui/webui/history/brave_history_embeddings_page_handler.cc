@@ -21,8 +21,9 @@ BraveHistoryEmbeddingsPageHandler::GetState(Profile* profile) {
   // The factory caches its result, including a null one, for the life of the
   // profile, so the setting turning on cannot conjure a service. Asking the
   // factory also covers profiles that never get one, such as ephemeral ones.
-  state.service_exists =
+  const bool service_exists =
       HistoryEmbeddingsServiceFactory::GetForProfile(profile) != nullptr;
+  state.needs_restart = state.enabled != service_exists;
   return state;
 }
 
@@ -62,5 +63,5 @@ void BraveHistoryEmbeddingsPageHandler::SetEnabled(bool enabled) {
 
 void BraveHistoryEmbeddingsPageHandler::OnPrefChanged() {
   State state = GetState(profile_);
-  page_->OnEnabledChanged(state.enabled, state.service_exists);
+  page_->OnEnabledChanged(state.enabled, state.needs_restart);
 }

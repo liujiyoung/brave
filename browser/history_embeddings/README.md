@@ -60,15 +60,9 @@ Because of that, the gate reads the setting through
 captures it as profile user data at profile setup — so the value the services
 were built with is available for the rest of the session.
 
-The page runs on two facts the browser reports, the setting and whether this
-session has an embeddings service, and derives the rest from them:
-
-- **search can run** = `enabled && service_exists`. This is upstream's
-  `enableHistoryEmbeddings`, which it gates every call into the embeddings
-  service on, so turning the toggle on cannot start a search against a service
-  that was never built.
-- **needs relaunch** = `enabled != service_exists`, which is when the side bar
-  shows its "Relaunch" button.
+The browser reports the setting and whether it is waiting on a relaunch to
+take effect. A search runs only with the setting on and nothing pending, so
+turning the toggle on cannot start one against a service that was never built.
 
 Both arrive via `loadTimeData` (injected by `BraveHistoryUI`) on load and via
 the `OnEnabledChanged` Mojo push afterwards, so reloading brave://history does

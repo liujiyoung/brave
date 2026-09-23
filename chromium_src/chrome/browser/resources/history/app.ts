@@ -20,13 +20,13 @@ import {
 // re-renders the app shell), and force a re-render of the toolbar/list whose
 // `compute*_` methods cache the value.
 function onHistoryEmbeddingsEnabledChanged(
-    enabled: boolean, serviceExists: boolean) {
+    enabled: boolean, needsRestart: boolean) {
   // Upstream gates its calls into the embeddings service on this.
-  const searchEnabled = enabled && serviceExists
+  const searchEnabled = enabled && !needsRestart
   loadTimeData.overrideValues({
     enableHistoryEmbeddings: searchEnabled,
     braveHistoryEmbeddingsEnabled: enabled,
-    braveHistoryEmbeddingsNeedsRestart: enabled !== serviceExists,
+    braveHistoryEmbeddingsNeedsRestart: needsRestart,
   })
   for (const app of document.querySelectorAll('history-app')) {
     ;(app as unknown as {enableHistoryEmbeddings_: boolean})
