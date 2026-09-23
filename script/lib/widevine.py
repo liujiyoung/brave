@@ -30,8 +30,10 @@ def main():
     parser.add_argument('--flags', required=True)
     args = parser.parse_args()
     if not can_generate_sig_file():
-        print('Widevine signing certificate, key, passphrase or '
-              'signature_generator.py is missing.', file=sys.stderr)
+        print(
+            'Widevine signing certificate, key, passphrase or '
+            'signature_generator.py is missing.',
+            file=sys.stderr)
         return 1
     generate_sig_file(args.input_file, args.output_file, args.flags)
     return 0
