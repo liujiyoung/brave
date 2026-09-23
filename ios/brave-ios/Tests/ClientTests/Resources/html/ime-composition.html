@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中文输入法回归测试</title>
+<style>
+  body { font: 18px system-ui; max-width: 850px; margin: 32px auto; padding: 16px; }
+  textarea, [contenteditable] { box-sizing: border-box; width: 100%; min-height: 130px;
+    padding: 12px; border: 1px solid #777; border-radius: 8px; font: inherit; }
+  pre { white-space: pre-wrap; font-size: 13px; }
+</style>
+<h1>中文输入法回归测试</h1>
+<p>使用中文拼音输入“你好，世界”，测试候选词方向键、回车确认、Escape 取消、退格和连续输入。
+分别检查普通文本框与富文本编辑区。下方记录真实输入事件，不主动修改输入内容。</p>
+<label for="plain">普通文本框</label>
+<textarea id="plain"></textarea>
+<p id="rich-label">富文本编辑区</p>
+<div id="rich" contenteditable="true" role="textbox" aria-labelledby="rich-label"></div>
+<p><button id="clear" type="button">清空事件记录</button></p>
+<pre id="events" aria-label="输入事件记录"></pre>
+<script>
+  const events = [];
+  const output = document.querySelector('#events');
+  let scheduled = false;
+  function record(event) {
+    events.push({ ms: Math.round(performance.now()), field: event.target.id,
+      type: event.type, data: event.data ?? null, key: event.key ?? null,
+      composing: event.isComposing ?? null, inputType: event.inputType ?? null });
+    if (events.length > 200) events.shift();
+    if (!scheduled) {
+      scheduled = true;
+      requestAnimationFrame(() => {
+        output.textContent = events.map(item => JSON.stringify(item)).join('\n');
+        scheduled = false;
+      });
+    }
+  }
+  for (const field of document.querySelectorAll('textarea, [contenteditable]')) {
+    for (const type of ['compositionstart', 'compositionupdate', 'compositionend',
+      'beforeinput', 'input', 'keydown', 'keyup']) field.addEventListener(type, record);
+  }
+  document.querySelector('#clear').addEventListener('click', () => {
+    events.length = 0;
+    output.textContent = '';
+  });
+</script>
+</html>

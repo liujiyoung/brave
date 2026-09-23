@@ -97,8 +97,9 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     )
     notifyTextChanged = debounce(
       0.1,
-      action: {
-        if self.isEditing {
+      action: { [weak self] in
+        // Composition may have started while this debounced callback was pending.
+        if let self, self.isEditing, self.markedTextRange == nil {
           self.autocompleteDelegate?.autocompleteTextField(
             self,
             didEnterText: self.text?.preferredSearchSuggestionText ?? ""
@@ -110,8 +111,8 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
 
     notifyTextDeleted = debounce(
       0.1,
-      action: {
-        if self.isEditing {
+      action: { [weak self] in
+        if let self, self.isEditing, self.markedTextRange == nil {
           var text = self.text
           if text?.isEmpty == true && self.autocompleteTextLabel?.text?.isEmpty == false {
             text = self.autocompleteTextLabel?.text
@@ -131,6 +132,8 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   }
 
   override public var keyCommands: [UIKeyCommand]? {
+    // Let the input method use arrows and Escape to edit/choose/cancel marked text.
+    guard markedTextRange == nil else { return super.keyCommands }
     return [
       UIKeyCommand(
         input: UIKeyCommand.inputLeftArrow,
@@ -151,7 +154,7 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   }
 
   @objc func handleKeyCommand(sender: UIKeyCommand) {
-    guard let input = sender.input else {
+    guard markedTextRange == nil, let input = sender.input else {
       return
     }
     switch input {
@@ -209,6 +212,8 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
 
   /// Commits the completion by setting the text and removing the highlight.
   fileprivate func applyCompletion() {
+    // Assigning UITextField.text while composing discards the marked range.
+    guard markedTextRange == nil else { return }
 
     // Clear the current completion, then set the text without the attributed style.
     let text = (self.text ?? "") + (self.autocompleteTextLabel?.text ?? "")
@@ -319,6 +324,7 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   }
 
   public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    guard markedTextRange == nil else { return false }
     applyCompletion()
     return autocompleteDelegate?.autocompleteTextFieldShouldReturn(self) ?? true
   }
@@ -367,7 +373,17 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     // Clear the autocompletion if any provisionally inserted text has been
     // entered (e.g., a partial composition from a Japanese keyboard).
     removeCompletion()
+    hideCursor = false
     super.setMarkedText(markedText, selectedRange: selectedRange)
+  }
+
+  override public func unmarkText() {
+    let wasComposing = markedTextRange != nil
+    super.unmarkText()
+    // Some input methods commit without another editingChanged event.
+    if wasComposing, markedTextRange == nil {
+      notifyTextChanged?()
+    }
   }
 
   func setTextWithoutSearching(_ text: String) {

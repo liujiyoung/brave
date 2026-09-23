@@ -174,7 +174,7 @@ extension BrowserViewController {
   }
 
   @objc private func moveURLCompletionKeyCommand(sender: UIKeyCommand) {
-    guard let searchController = self.searchController else {
+    guard !topToolbar.isComposingInURLBar, let searchController = self.searchController else {
       return
     }
 
@@ -483,12 +483,12 @@ extension BrowserViewController {
     ]
 
     // In iOS 15+, certain keys events are delivered to the text input or focus systems first, unless specified otherwise
-    searchLocationCommands.forEach { $0.wantsPriorityOverSystemBehavior = true }
+    // Candidate navigation must remain available to the system input method.
     tabMovementCommands.forEach { $0.wantsPriorityOverSystemBehavior = true }
     tabNavigationKeyCommands.forEach { $0.wantsPriorityOverSystemBehavior = true }
     additionalPriorityCommandKeys.forEach { $0.wantsPriorityOverSystemBehavior = true }
 
-    if topToolbar.inOverlayMode {
+    if topToolbar.inOverlayMode, !topToolbar.isComposingInURLBar {
       keyCommandList.append(contentsOf: searchLocationCommands)
     }
 

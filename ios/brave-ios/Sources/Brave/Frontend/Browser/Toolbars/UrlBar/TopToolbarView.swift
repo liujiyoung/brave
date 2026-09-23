@@ -135,6 +135,10 @@ class TopToolbarView: UIView, ToolbarProtocol {
     locationTextField?.isPasting == true
   }
 
+  var isComposingInURLBar: Bool {
+    locationTextField?.markedTextRange != nil
+  }
+
   // MARK: Views
 
   private var locationTextField: AutocompleteTextField?

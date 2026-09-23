@@ -90,18 +90,24 @@ extension BrowserViewController {
       return supportsAutoAdd
     }
 
+    // Rebuilding the keyboard assistant during composition can disrupt candidate selection.
+    guard (webContentView as? UITextInput)?.markedTextRange == nil else {
+      return supportsAutoAdd
+    }
+
     if UIDevice.isIpad {
       if customSearchBarButtonItemGroup == nil {
         customSearchBarButtonItemGroup = UIBarButtonItemGroup(
           barButtonItems: [UIBarButtonItem(customView: customSearchEngineButton)],
           representativeItem: nil
         )
-      } else {
-        webContentView.inputAssistantItem.trailingBarButtonGroups.removeAll(
-          where: { $0.barButtonItems.contains(where: { $0.customView != nil }) })
       }
 
-      if let barButtonItemGroup = customSearchBarButtonItemGroup {
+      if let barButtonItemGroup = customSearchBarButtonItemGroup,
+        !webContentView.inputAssistantItem.trailingBarButtonGroups.contains(
+          where: { $0 === barButtonItemGroup }
+        )
+      {
         webContentView.inputAssistantItem.trailingBarButtonGroups.append(barButtonItemGroup)
       }
     } else {
