@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "base/auto_reset.h"
+#include "base/memory/raw_ref.h"
 #include "base/memory/weak_ptr.h"
 #include "brave/browser/ai_chat/content_agent_task_provider.h"
 #include "brave/browser/ai_chat/content_agent_tool_provider_factory.h"
@@ -17,6 +17,10 @@
 #include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/actor/actor_task.h"
 #include "components/optimization_guide/content/browser/page_content_proto_provider.h"
+
+namespace actor::ui {
+class ActorUiStateManagerInterface;
+}  // namespace actor::ui
 
 namespace ai_chat {
 
@@ -27,17 +31,15 @@ namespace ai_chat {
 class ContentAgentToolProvider : public ToolProvider,
                                  public ContentAgentTaskProvider {
  public:
-  ContentAgentToolProvider(Profile* profile,
-                           actor::ActorKeyedService* actor_service);
+  ContentAgentToolProvider(
+      Profile* profile,
+      actor::ActorKeyedService* actor_service,
+      actor::ui::ActorUiStateManagerInterface& ui_state_manager);
 
   ~ContentAgentToolProvider() override;
 
   ContentAgentToolProvider(const ContentAgentToolProvider&) = delete;
   ContentAgentToolProvider& operator=(const ContentAgentToolProvider&) = delete;
-
-  static base::AutoReset<actor::ui::ActorUiStateManagerInterface*>
-  SetUiStateManagerForTesting(
-      actor::ui::ActorUiStateManagerInterface* ui_state_manager);
 
   // ToolProvider implementation
   std::vector<base::WeakPtr<Tool>> GetTools() override;
@@ -70,8 +72,6 @@ class ContentAgentToolProvider : public ToolProvider,
 
   void OnActorTaskStateChanged(actor::ActorTask& task);
 
-  actor::ui::ActorUiStateManagerInterface* GetUiStateManager();
-
   void CreateTools();
 
   void TabAddedToTask(base::OnceCallback<void(tabs::TabHandle)> callback,
@@ -94,6 +94,7 @@ class ContentAgentToolProvider : public ToolProvider,
   tabs::TabHandle task_tab_handle_;
   raw_ptr<actor::ActorKeyedService> actor_service_ = nullptr;
   raw_ptr<Profile> profile_ = nullptr;
+  raw_ref<actor::ui::ActorUiStateManagerInterface> ui_state_manager_;
   base::CallbackListSubscription actor_task_state_changed_subscription_;
 
   base::WeakPtrFactory<ContentAgentToolProvider> weak_ptr_factory_{this};

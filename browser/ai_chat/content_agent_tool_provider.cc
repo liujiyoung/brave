@@ -8,7 +8,6 @@
 #include <memory>
 #include <vector>
 
-#include "base/check_is_test.h"
 #include "base/containers/fixed_flat_set.h"
 #include "brave/browser/ai_chat/ai_chat_enterprise_policy_checker.h"
 #include "brave/browser/ai_chat/tools/click_tool.h"
@@ -60,23 +59,15 @@ constexpr auto kActorStatesToNotify =
         actor::ActorTask::State::kWaitingOnUser,
     });
 
-actor::ui::ActorUiStateManagerInterface* g_ui_state_manager_for_testing =
-    nullptr;
-
 }  // namespace
-
-// static
-base::AutoReset<actor::ui::ActorUiStateManagerInterface*>
-ContentAgentToolProvider::SetUiStateManagerForTesting(
-    actor::ui::ActorUiStateManagerInterface* ui_state_manager) {
-  return base::AutoReset<actor::ui::ActorUiStateManagerInterface*>(
-      &g_ui_state_manager_for_testing, ui_state_manager);
-}
 
 ContentAgentToolProvider::ContentAgentToolProvider(
     Profile* profile,
-    actor::ActorKeyedService* actor_service)
-    : actor_service_(actor_service), profile_(profile) {
+    actor::ActorKeyedService* actor_service,
+    actor::ui::ActorUiStateManagerInterface& ui_state_manager)
+    : actor_service_(actor_service),
+      profile_(profile),
+      ui_state_manager_(ui_state_manager) {
   // This class should only exist if the feature is enabled
   CHECK(ai_chat::features::IsAIChatAgentProfileEnabled());
   // This class should only exist with a valid actor service
@@ -96,7 +87,7 @@ ContentAgentToolProvider::ContentAgentToolProvider(
       actor::TaskSourceInfo(actor::TaskSourceInfo::Client::kExperimentalActor,
                             /*id=*/std::nullopt),
       AIChatEnterprisePolicyChecker::NoEnterprisePolicyChecker(),
-      /*options=*/nullptr, /*delegate=*/nullptr, GetUiStateManager());
+      /*options=*/nullptr, /*delegate=*/nullptr, &*ui_state_manager_);
 
   actor_task_state_changed_subscription_ =
       actor_service_->AddTaskStateChangedCallback(base::BindRepeating(
@@ -160,7 +151,7 @@ void ContentAgentToolProvider::StopAllTasks() {
         actor::TaskSourceInfo(actor::TaskSourceInfo::Client::kExperimentalActor,
                               /*id=*/std::nullopt),
         AIChatEnterprisePolicyChecker::NoEnterprisePolicyChecker(),
-        /*options=*/nullptr, /*delegate=*/nullptr, GetUiStateManager());
+        /*options=*/nullptr, /*delegate=*/nullptr, &*ui_state_manager_);
     actor_service_->StopTask(stopping_task_id,
                              actor::ActorTask::StoppedReason::kTaskComplete);
   }
@@ -246,15 +237,6 @@ void ContentAgentToolProvider::OnActorTaskStateChanged(actor::ActorTask& task) {
       kActorStatesToNotify.contains(task.GetState())) {
     NotifyTaskStateChanged();
   }
-}
-
-actor::ui::ActorUiStateManagerInterface*
-ContentAgentToolProvider::GetUiStateManager() {
-  if (g_ui_state_manager_for_testing) {
-    CHECK_IS_TEST();
-    return g_ui_state_manager_for_testing;
-  }
-  return actor_service_->GetActorUiStateManager();
 }
 
 void ContentAgentToolProvider::CreateTools() {
