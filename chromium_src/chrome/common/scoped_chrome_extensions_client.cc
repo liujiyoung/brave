@@ -5,6 +5,7 @@
 
 #include "chrome/common/scoped_chrome_extensions_client.h"
 
+#include "base/check_is_test.h"
 #include "base/command_line.h"
 #include "brave/common/extensions/brave_extensions_client.h"
 #include "content/public/common/content_switches.h"
@@ -20,20 +21,22 @@ const ScopedChromeExtensionsClient* g_process_wide_client_owner = nullptr;
 // `--single-process` both BrowserProcessImpl and ChromeContentRendererClient
 // are created in the browser process, and each one of them creates a
 // ScopedChromeExtensionsClient. Share the client between them, but only in
-// browser tests, one of which needs `--single-process` to control the
-// renderer's approximated device memory. Production keeps upstream's
+// browser tests, which need `--single-process` (for example, to control the
+// renderer's approximated device memory). Production keeps upstream's
 // one-instance-per-process behavior.
-bool ShouldShareProcessWideClient() {
+bool IsSingleProcessBrowserTest() {
   const auto* const command_line = base::CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(::switches::kSingleProcess) &&
          command_line->HasSwitch(::switches::kBrowserTest);
 }
 
 // Returns true if `instance` should register the process-wide client.
-bool ClaimProcessWideClient(const ScopedChromeExtensionsClient* instance) {
-  if (!ShouldShareProcessWideClient()) {
+bool UseGlobalExtensionsClientForSingleProcessTests(
+    const ScopedChromeExtensionsClient* instance) {
+  if (!IsSingleProcessBrowserTest()) {
     return true;
   }
+  CHECK_IS_TEST();
   if (g_process_wide_client_owner) {
     return false;
   }
@@ -42,10 +45,12 @@ bool ClaimProcessWideClient(const ScopedChromeExtensionsClient* instance) {
 }
 
 // Returns true if `instance` should unregister the process-wide client.
-bool ReleaseProcessWideClient(const ScopedChromeExtensionsClient* instance) {
-  if (!ShouldShareProcessWideClient()) {
+bool ReleaseGlobalExtensionsClientForSingleProcessTests(
+    const ScopedChromeExtensionsClient* instance) {
+  if (!IsSingleProcessBrowserTest()) {
     return true;
   }
+  CHECK_IS_TEST();
   if (g_process_wide_client_owner != instance) {
     return false;
   }
