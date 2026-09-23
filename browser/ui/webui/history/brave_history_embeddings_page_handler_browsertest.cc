@@ -135,17 +135,13 @@ class BraveHistoryEmbeddingsPageHandlerBrowserTest
 
   // Leaves a multi-word query in the search box, which is what makes the page
   // reach for the embeddings service: upstream only runs an embeddings search
-  // at two or more words. Waits for the resulting render so
-  // HasEmbeddingsSearchElement() sees the outcome.
+  // at two or more words.
   void SetLeftoverQuery() {
     ASSERT_TRUE(content::ExecJs(
         web_contents_,
-        "(async () => {"
-        "  const app = document.querySelector('history-app');"
-        "  app.shadowRoot.querySelector('history-toolbar').searchField"
-        "      .setValue('semantic history');"
-        "  await app.updateComplete;"
-        "})()"));
+        "document.querySelector('history-app').shadowRoot"
+        "    .querySelector('history-toolbar').searchField"
+        "    .setValue('semantic history')"));
   }
 
   // The element the page only renders once it decides to run an embeddings
@@ -158,6 +154,33 @@ class BraveHistoryEmbeddingsPageHandlerBrowserTest
                "    .querySelector('#historyEmbeddingsContainer"
                " cr-history-embeddings')")
         .ExtractBool();
+  }
+
+  // The query reaches the app an update cycle after it is typed:
+  // `setValue()` updates `history-query-manager.queryState` synchronously, but
+  // the app only learns of it through the `query-state-changed` notify that
+  // `CrLitElement::updated()` dispatches, so the app re-renders later. Bounded
+  // so a render that never comes fails here rather than hanging until the
+  // browser-test timeout.
+  void WaitForEmbeddingsSearchElement() {
+    ASSERT_EQ("rendered",
+              content::EvalJs(
+                  web_contents_,
+                  "new Promise(resolve => {"
+                  "  const start = performance.now();"
+                  "  const check = () => {"
+                  "    if (document.querySelector('history-app').shadowRoot"
+                  "        .querySelector('#historyEmbeddingsContainer"
+                  " cr-history-embeddings')) {"
+                  "      resolve('rendered');"
+                  "    } else if (performance.now() - start >= 10000) {"
+                  "      resolve('timed out waiting for render');"
+                  "    } else {"
+                  "      setTimeout(check, 20);"
+                  "    }"
+                  "  };"
+                  "  check();"
+                  "})"));
   }
 
  protected:
@@ -239,7 +262,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
 
   SetLeftoverQuery();
 
-  EXPECT_TRUE(HasEmbeddingsSearchElement());
+  ASSERT_NO_FATAL_FAILURE(WaitForEmbeddingsSearchElement());
 }
 
 // Leaves the setting on for the run below.
