@@ -78,12 +78,13 @@ class BraveHistoryEmbeddingsPageHandlerBrowserTest
         .ExtractBool();
   }
 
-  // The flag upstream gates every call into the embeddings service on,
-  // including the `Search()` that CHECKs the service is non-null.
+  // Whether the page will run an embeddings search at all: the setting is on
+  // and the service it needs was built. Upstream gates every call into that
+  // service on this, including the `Search()` that CHECKs it is non-null.
   bool SearchEnabled() { return GetLoadTimeBoolean("enableHistoryEmbeddings"); }
 
   // What the side bar toggle shows.
-  bool ToggleChecked() {
+  bool IsToggleChecked() {
     return GetLoadTimeBoolean("braveHistoryEmbeddingsEnabled");
   }
 
@@ -93,8 +94,12 @@ class BraveHistoryEmbeddingsPageHandlerBrowserTest
   }
 
   // Flips the toggle the way the side bar does, then waits for the resulting
-  // Mojo push to land back in `loadTimeData`. Bounded so a push that never
-  // arrives fails here rather than hanging until the browser-test timeout.
+  // Mojo push to land back in `loadTimeData`. Sets `checked` and fires
+  // `change` rather than clicking: `cr-toggle` attaches its click handler in
+  // `firstUpdated()`, which never runs on an element rendered from
+  // `CrLitElement::connectedCallback()`'s `ensureInitialRender()`, so a click
+  // is a no-op here. Bounded so a push that never arrives fails here rather
+  // than hanging until the browser-test timeout.
   void ClickToggle(bool enabled) {
     ASSERT_TRUE(content::ExecJs(
         web_contents_,
@@ -198,7 +203,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
       local_ai::prefs::kBraveHistoryEmbeddingsEnabled));
   NavigateToHistory();
 
-  EXPECT_FALSE(ToggleChecked());
+  EXPECT_FALSE(IsToggleChecked());
   EXPECT_FALSE(SearchEnabled());
   EXPECT_FALSE(NeedsRestart());
 }
@@ -216,7 +221,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
 
   // The toggle shows the value the user just picked, and the side bar offers
   // the relaunch that will make it take effect.
-  EXPECT_TRUE(ToggleChecked());
+  EXPECT_TRUE(IsToggleChecked());
   EXPECT_TRUE(NeedsRestart());
   // But there is no service, so the page must not reach for one.
   ASSERT_FALSE(ServiceExists());
@@ -235,7 +240,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
 
   NavigateToHistoryWithQuery("semantic history");
 
-  EXPECT_TRUE(ToggleChecked());
+  EXPECT_TRUE(IsToggleChecked());
   EXPECT_TRUE(NeedsRestart());
   EXPECT_FALSE(SearchEnabled());
   EXPECT_FALSE(HasEmbeddingsSearchElement());
@@ -256,7 +261,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
   ASSERT_TRUE(ServiceExists());
   NavigateToHistory();
 
-  EXPECT_TRUE(ToggleChecked());
+  EXPECT_TRUE(IsToggleChecked());
   EXPECT_TRUE(SearchEnabled());
   EXPECT_FALSE(NeedsRestart());
 
@@ -280,7 +285,7 @@ IN_PROC_BROWSER_TEST_F(BraveHistoryEmbeddingsPageHandlerBrowserTest,
 
   ASSERT_NO_FATAL_FAILURE(ClickToggle(false));
 
-  EXPECT_FALSE(ToggleChecked());
+  EXPECT_FALSE(IsToggleChecked());
   EXPECT_FALSE(SearchEnabled());
   EXPECT_TRUE(NeedsRestart());
   // The service outlives the setting, so the gate is the setting, not the
