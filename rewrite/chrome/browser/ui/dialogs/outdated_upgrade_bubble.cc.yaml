@@ -10,5 +10,7 @@ substitutions:
       Patched at the source of `update_url`, not at its use in
       `OnDialogAccepted()`, so that parameter stays in genuine use.
     regex:
-      re_pattern: 'auto update_url = std::string\(kUpdateBrowserRedirectUrl\)\s*\+\s*GetUpdateUrlChannelSuffix\(chrome::GetChannel\(\)\);'
+      re_pattern:
+        'auto update_url =
+        std::string\(kUpdateBrowserRedirectUrl\)\s*\+\s*GetUpdateUrlChannelSuffix\(chrome::GetChannel\(\)\);'
       replace: 'auto update_url = BraveGetUpdateUrl().spec();'
