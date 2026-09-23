@@ -495,6 +495,7 @@
 
 # These tests fail because kPrerender2 feature is disabled.
 -All/AmpPageLoadMetricsBrowserTest.*
+-All/CrashReportingBrowserTest.NoCrashReportForPrerenderedPage/*
 -All/GWSPageLoadMetricsObserverWithoutStrictSiteIsolationBrowserTest.PrewarmProcessReuseWithoutStrictSiteIsolation/*
 -All/HTTPCacheSearchPreloadUnifiedBrowserTest.BackwardHitHttpCache/*
 -All/HostedAppTestWithPrerendering.*
@@ -505,6 +506,7 @@
 -ContentSettingsWithPrerenderingBrowserTest.*/*
 -DeclarativeNetRequestApiPrerenderingTest.PrerenderedPageInterception
 -ExtensionBackForwardCacheWithPrerenderBrowserTest.PortIsStillOpenAfterPrerenderAndActivate
+-ExtensionActionRunnerPrerenderBrowserTest.PrerenderedCrossOriginPageDoesNotRunPendingScripts
 -ExtensionApiTabPrerenderingTest.PrerenderingIntoANewTab
 -ExtensionScriptTrackerBrowserTest.TrackingDisabledForPrerenderedNonDefaultSearchResultPage
 -ExtensionScriptTrackerBrowserTest.TrackingDisabledForPrerenderedNonDsePage
@@ -1867,8 +1869,7 @@
 
 # These tests fail because we override ShouldEnablePageContentAnnotations to
 # return false (disables creation of PageContentAnnotationsService)
--All/PageContentAnnotationsServiceContentExtractionPdfTest.*/*
--All/PageContentAnnotationsServiceContentExtractionTest*.*/*
+-All/PageContentAnnotationsServiceContentExtraction*Test.*/*
 -HistoryEmbeddingsBrowserTest.*
 -HistoryEmbeddingsWithLowAggregationBrowserTest.PassageContextSelectionLimitedByWordCount
 -HistoryEmbeddingsWithUrlFilterBrowserTest.DoesNotFilterUrlNotOnBlocklist
@@ -1996,6 +1997,7 @@
 -All/CrashReportingBrowserTest.CrashReport*OOM/*
 -All/CrashReportingBrowserTest.CrashReportOOMTakesPriorityOverUnresponsive/*
 -All/CrashReportingBrowserTest.CrashReportUnresponsiveWithoutHungExitCode/*
+-All/CrashReportingBrowserTest.NoCrashReportForBFCachedPage/*
 -All/JSCallStackReportingBrowserTest.IframeUnresponsiveWithJSCallStackNotOptedIn/*
 -All/JSCallStackReportingBrowserTest.IframeUnresponsiveWithJSCallStackOptedIn/*
 -All/JSCallStackReportingBrowserTest.MainPageNotOptedIn/*
@@ -2074,6 +2076,7 @@
 # title whereas we use "Private"
 -All/WebInstallNotSupportedDialogBrowserTest.NotSupportedDialogInIncognito_BackgroundDocument/*
 -All/WebInstallNotSupportedDialogBrowserTest.NotSupportedDialogInIncognito_CurrentDocument/*
+-BrowserViewTest.AccessibleWindowTitleIncognito
 -WebInstallFromManifestBrowserTest.Incognito_ValidManifest_ShowsNotSupportedDialog
 
 # These tests fail because we override HandleNewTabURLRewrite in
