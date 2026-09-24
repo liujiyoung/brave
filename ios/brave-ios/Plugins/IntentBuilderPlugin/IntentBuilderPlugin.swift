@@ -14,13 +14,14 @@ struct IntentBuilderPlugin: BuildToolPlugin {
       Diagnostics.error("Attempted to use `IntentBuilderPlugin` on an unsupported module target")
       return []
     }
+    let intentBuilder = try context.tool(named: "intentbuilderc")
     return target.sourceFiles(withSuffix: "intentdefinition")
       .map { file in
         .prebuildCommand(
           displayName: "Generate intents sources",
-          executable: Path("/usr/bin/xcrun"),
+          executable: intentBuilder.path,
           arguments: [
-            "intentbuilderc", "generate",
+            "generate",
             "-input", file.path.string,
             "-output", outputDirectory,
             "-language", "Swift",

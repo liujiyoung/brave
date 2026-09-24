@@ -15,6 +15,7 @@ rust_host_response_file_contents = []
 
 if (host_os == "mac" && current_toolchain == host_toolchain) {
   import("//build/config/clang/clang.gni")
+  import("//build/config/compiler/compiler.gni")
   import("//build/config/mac/mac_sdk.gni")
 
   _clang_bin = rebase_path("$clang_base_path/bin")
@@ -27,6 +28,15 @@ if (host_os == "mac" && current_toolchain == host_toolchain) {
   }
 
   rust_host_inputs += [ "//brave/build/rust/rust_host_linker.py" ]
+  if (!use_lld) {
+    # Respect the local Apple linker choice. Keep Cargo's host macro libraries
+    # unstripped: rust-lang/rust#157750 describes a LINKEDIT alignment failure
+    # when loading stripped libraries on macOS 27.
+    rust_host_response_file_contents += [
+      "BRAVE_RUST_HOST_LD=" + rebase_path("$mac_bin_path/ld"),
+      "CARGO_PROFILE_RELEASE_STRIP=none",
+    ]
+  }
   rust_host_response_file_contents += [
     "AR=$_clang_bin/llvm-ar",
 

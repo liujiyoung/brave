@@ -31,7 +31,7 @@ if [[ $RUN_CLANG_STATIC_ANALYZER = "NO" ]]; then
     fi
   fi
   # Do not inject Xcode build configs into the GN build
-  env -i PATH="$PATH" python3 \
+  env -i PATH="$PATH" DEVELOPER_DIR="$DEVELOPER_DIR" python3 \
     "${PROJECT_DIR}/../scripts/scheme_preaction.py" \
     --platform_name "$PLATFORM_NAME" \
     "$@"

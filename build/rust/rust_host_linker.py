@@ -28,6 +28,9 @@ passed to the WASM link, so we put `--ld-path` inside the linker invocation
 instead of a rustflag. (A plain `build_crate` build has no `--target`, so it
 could just set "CARGO_TARGET_..._RUSTFLAGS=-Clink-arg=--ld-path=...";
 this wrapper works for both.)
+
+BRAVE_RUST_HOST_LD selects the Apple linker when GN's use_lld is false,
+for local builds with SDKs newer than the hermetic linker's TAPI support.
 """
 
 import os
@@ -40,7 +43,8 @@ def main():
     if not cc:
         print('rust_host_linker: $CC is not set', file=sys.stderr)
         return 1
-    ld_path = os.path.join(os.path.dirname(cc), 'ld64.lld')
+    ld_path = os.environ.get('BRAVE_RUST_HOST_LD') or os.path.join(
+        os.path.dirname(cc), 'ld64.lld')
     return subprocess.call([cc, f'--ld-path={ld_path}'] + sys.argv[1:])
 
 

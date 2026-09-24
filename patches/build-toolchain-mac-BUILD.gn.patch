@@ -1,0 +1,13 @@
+diff --git a/build/toolchain/mac/BUILD.gn b/build/toolchain/mac/BUILD.gn
+index 8a6085bd37..fbd6cf9d43 100644
+--- a/build/toolchain/mac/BUILD.gn
++++ b/build/toolchain/mac/BUILD.gn
+@@ -22,8 +22,6 @@ template("mac_toolchain") {
+       forward_variables_from(invoker.toolchain_args, "*")
+       current_os = "mac"
+       if (target_os == "ios") {
+-        # Use LLD for the host part of a chrome/ios build.
+-        use_lld = true
+ 
+         # Override `is_component_build` for the host toolchain.
+         # See https://crbug.com/gn/286 for details why this is

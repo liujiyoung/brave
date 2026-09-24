@@ -29,12 +29,39 @@ candidate appearance and normal input in the simulator and on a physical
 iPad Pro 11-inch (3rd generation), iPadOS 26.7, using a hardware keyboard.
 This is manual confirmation, not a quantitative latency benchmark.
 
-Full Brave build and integration verification remain pending while Chromium
-and Brave dependencies are downloaded. These results do not validate the full
-BrowserViewController or webpage integration.
+The full BraveCore and Client app now build with Xcode 27 and launch on the
+iPadOS 26.5 simulator. All five AutocompleteTextFieldCompositionTests also pass
+in the full Brave test target (zero failures or skipped tests). Interactive
+browser validation and a full physical-device build remain in progress.
+These automated tests do not measure candidate-panel latency or validate
+webpage keyboard-assistant integration.
 
 The fixture `ios/brave-ios/Tests/ClientTests/Resources/html/ime-composition.html`
 logs native composition/input/keyboard events for subsequent browser tests.
 Check address-bar and webpage input in regular/private tabs, both orientations,
 including candidate navigation, commit, cancel, backspace, focus changes and
 language switching.
+
+## Local Xcode 27 build
+
+The pinned LLVM linker cannot read the Xcode 27 SDK's `arm64e.x1` TAPI targets.
+Use `--gn use_lld:false` for local builds. The macOS host-toolchain patch lets
+this existing GN option apply to iOS build tools as well. Cargo's host linker
+also honors this choice, with symbol stripping disabled for its release tools
+to avoid [Rust issue 157750](https://github.com/rust-lang/rust/issues/157750).
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+  npm run build -- Debug --target_os ios --target_arch arm64 \
+  --target_environment simulator --gn use_lld:false
+```
+
+Also put `use_lld = false` after the generated import in
+`src/out/ios_Debug_arm64_simulator/args.gn`, so Xcode's pre-action preserves it.
+Use `device` instead of `simulator` for an iPad build, with the corresponding
+`src/out/ios_Debug_arm64/args.gn` override. The default hermetic-linker setting
+is unchanged when this option is not supplied.
+
+The Xcode scheme pre-action preserves `DEVELOPER_DIR`. The intents plugin
+resolves `intentbuilderc` through SwiftPM's tool search paths, allowing builds
+when the system-wide `xcode-select` still points to Command Line Tools.
