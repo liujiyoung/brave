@@ -31,8 +31,10 @@ This is manual confirmation, not a quantitative latency benchmark.
 
 The full BraveCore and Client app now build with Xcode 27 and launch on the
 iPadOS 26.5 simulator. All five AutocompleteTextFieldCompositionTests also pass
-in the full Brave test target (zero failures or skipped tests). Interactive
-browser validation and a full physical-device build remain in progress.
+in the full Brave test target (zero failures or skipped tests). The full device
+app also builds and is installed on the iPad Pro 11-inch (3rd generation),
+iPadOS 26.7. Its process remains running after launch. Interactive input checks
+in the full browser remain for the tester.
 These automated tests do not measure candidate-panel latency or validate
 webpage keyboard-assistant integration.
 
@@ -71,3 +73,11 @@ Disabling signing entirely also removes its simulated application-group
 entitlements and causes startup to abort in
 `CredentialProviderSharedArchivableStoreURL()`. With ad-hoc signing enabled,
 the full app reaches the first-run onboarding screen.
+
+## Physical-device development install
+
+The local device build uses a separate bundle identifier and the developer's
+paid team. Its provisioning profile expires on September 24, 2027. The local
+signing entitlements omit `com.apple.developer.carplay-audio`, which is not
+approved for this team. The production entitlements remain unchanged; this
+development install does not provide CarPlay audio integration.
