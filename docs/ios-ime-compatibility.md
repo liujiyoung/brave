@@ -65,3 +65,9 @@ is unchanged when this option is not supplied.
 The Xcode scheme pre-action preserves `DEVELOPER_DIR`. The intents plugin
 resolves `intentbuilderc` through SwiftPM's tool search paths, allowing builds
 when the system-wide `xcode-select` still points to Command Line Tools.
+
+Build the simulator Client with `CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-`.
+Disabling signing entirely also removes its simulated application-group
+entitlements and causes startup to abort in
+`CredentialProviderSharedArchivableStoreURL()`. With ad-hoc signing enabled,
+the full app reaches the first-run onboarding screen.
