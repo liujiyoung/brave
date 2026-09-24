@@ -81,3 +81,66 @@ paid team. Its provisioning profile expires on September 24, 2027. The local
 signing entitlements omit `com.apple.developer.carplay-audio`, which is not
 approved for this team. The production entitlements remain unchanged; this
 development install does not provide CarPlay audio integration.
+
+### Repeat deployment from this checkout
+
+Run these commands from `src/brave` on the `fix/ios26-ime-compatibility` branch.
+The checkout must already contain its Chromium dependencies (`npm run init --
+--target_os=ios --target_arch=arm64 --no-history` on a new checkout). Sign in to
+Xcode with the paid developer account, and connect/unlock the iPad.
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+export BRAVE_DEPLOY_TEAM=CA9P859PW3
+export BRAVE_DEPLOY_BASE_ID=com.liujiyoung.brave
+# Get the device identifier from: xcrun devicectl list devices
+export BRAVE_DEPLOY_DEVICE='YOUR_IPAD_UDID'
+export BRAVE_DEPLOY_DIR="$(cd ../.. && pwd)/validation"
+mkdir -p "$BRAVE_DEPLOY_DIR"
+
+npm run build -- Debug --target_os ios --target_arch arm64 \
+  --target_environment device --gn use_lld:false
+npm run ios_pack_js
+
+# Preserve the linker choice when the Xcode pre-action regenerates GN args.
+python3 - <<'PY'
+from pathlib import Path
+p = Path('../out/ios_Debug_arm64/args.gn')
+s = p.read_text()
+if '\nuse_lld = false\n' not in s:
+    p.write_text(s + '\nuse_lld = false\n')
+PY
+
+# Generate local signing entitlements without modifying tracked files.
+python3 - <<'PY'
+import os
+import plistlib
+from pathlib import Path
+source = Path('ios/brave-ios/App/iOS/Entitlements/Debug.entitlements')
+entitlements = plistlib.loads(source.read_bytes())
+entitlements.pop('com.apple.developer.carplay-audio', None)
+output = Path(os.environ['BRAVE_DEPLOY_DIR']) / 'BraveDevice-Local.entitlements'
+output.write_bytes(plistlib.dumps(entitlements))
+PY
+
+xcodebuild build \
+  -project ios/brave-ios/App/Client.xcodeproj \
+  -scheme 'Debug (No Core)' -destination 'generic/platform=iOS' \
+  -derivedDataPath "$BRAVE_DEPLOY_DIR/BraveDeviceDerivedData" \
+  -clonedSourcePackagesDirPath "$BRAVE_DEPLOY_DIR/SwiftPackages" \
+  DEVELOPMENT_TEAM="$BRAVE_DEPLOY_TEAM" CODE_SIGN_STYLE=Automatic \
+  BASE_BUNDLE_ID="$BRAVE_DEPLOY_BASE_ID" \
+  BRAVE_APP_ENTITLEMENTS="$BRAVE_DEPLOY_DIR/BraveDevice-Local.entitlements" \
+  -allowProvisioningUpdates -allowProvisioningDeviceRegistration
+
+xcrun devicectl device install app --device "$BRAVE_DEPLOY_DEVICE" \
+  "$BRAVE_DEPLOY_DIR/BraveDeviceDerivedData/Build/Products/Debug-iphoneos/Client.app"
+xcrun devicectl device process launch --device "$BRAVE_DEPLOY_DEVICE" \
+  "$BRAVE_DEPLOY_BASE_ID.BrowserBeta"
+```
+
+`BRAVE_APP_ENTITLEMENTS` overrides only the main Debug app's entitlements;
+extensions retain their own entitlements. Omitting it uses the original Debug
+entitlements, including CarPlay. Change the team and base identifier for another
+developer account. Private signing keys, account credentials, provisioning
+profiles, downloaded dependencies and build products are not stored in Git.
