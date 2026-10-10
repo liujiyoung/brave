@@ -626,7 +626,7 @@ class CWVContainerView: UIView {
     didSet {
       if let webView {
         addSubview(webView)
-        webView.scrollView?.tintColor = tintColor
+        webView.scrollView?.tintColor = .browserTextInputTint
         setNeedsLayout()
       }
     }
@@ -637,8 +637,8 @@ class CWVContainerView: UIView {
     // Chromium copies a placeholder scroll view's default tint onto WKScrollView, blocking
     // the window's accent. WebKit then falls back to page caret colors for text interaction,
     // which can leave the selected IME candidate unreadable in dark appearance. Keep the
-    // proxy's tint in sync with this container, including when attaching to another window.
-    webView?.scrollView?.tintColor = tintColor
+    // chosen input accent explicit across browser theme changes and window moves.
+    webView?.scrollView?.tintColor = .browserTextInputTint
   }
 
   override func viewPrintFormatter() -> UIViewPrintFormatter {

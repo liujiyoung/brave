@@ -5,6 +5,9 @@
 import UIKit
 
 extension UIColor {
+  /// Shared address-bar and webpage input accent, including the selected IME candidate.
+  public static let browserTextInputTint = UIColor(rgb: 0x426BF2)
+
   /// Initializes and returns a color object for the given RGB hex integer.
   public convenience init(rgb: Int) {
     self.init(

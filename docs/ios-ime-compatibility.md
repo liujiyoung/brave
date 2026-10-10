@@ -46,19 +46,23 @@ language switching.
 
 ## Webpage candidates in dark appearance
 
-`CWVContainerView` passes its inherited browser tint to the web view's
+`CWVContainerView` sets the shared `browserTextInputTint` on the web view's
 scroll-view proxy when the web view is attached and when its tint changes.
 Chromium otherwise copies its placeholder scroll view's default system-blue
-tint to `WKScrollView`, preventing it from inheriting the window's accent. WebKit treats this default
-tint differently from an embedder's custom tint when choosing text interaction
-colors. With a dark browser and a light page, the selected IME candidate could
+tint to `WKScrollView`, preventing it from inheriting the window's accent.
+WebKit treats this default tint differently from an embedder's custom tint when
+choosing text interaction colors. With a dark browser and a light page, the
+selected IME candidate could
 lose its highlight and become unreadable. The address bar was unaffected.
 
-The tint is set on the proxy so it survives replacement of the underlying scroll
-view. It remains dynamic across light/dark appearance changes, and does not
-rewrite page CSS, change the page's preferred color scheme, reload input views,
-or touch marked text. Explicit CSS caret colors remain controlled by the page.
-The legacy candidate-panel compatibility flag remains enabled.
+The selected accent is the reference screenshot's sRGB blue, `#426BF2`, in both
+light and dark appearance. `AutocompleteTextField` uses the same color for
+address-bar input; UIKit supplies the selected candidate's white text. The tint
+is set on the proxy so it survives replacement of the underlying scroll view.
+This does not rewrite page CSS, change the page's preferred color scheme,
+reload input views, or touch marked text. Explicit CSS caret colors remain
+controlled by the page. The legacy candidate-panel compatibility flag remains
+enabled.
 
 The regression HTML fixture now offers independent light/dark page colors.
 Check both with the browser in dark mode, including the Excalidraw text editor,
@@ -68,13 +72,16 @@ appearance, and recreating/reloading tabs. Hardware-keyboard candidate rendering
 requires a manual check; native tint diagnostics and composition unit tests do
 not replace it.
 
-Validated with Xcode 27 and the iPadOS 26.5 simulator: the full browser's
-`WKScrollView` now receives the dynamic `text_interactive` color instead of
-`systemBlueColor`, and all five composition regression tests pass. Both the
-simulator and signed device app build successfully. A separate WKWebView
-diagnostic confirms that the custom tint restores native selection colors and
-resolves correctly after a dark-to-light switch without losing marked text or
-first-responder status.
+The contrast fix was validated with Xcode 27 and the iPadOS 26.5 simulator:
+the full browser's `WKScrollView` receives a custom tint instead of
+`systemBlueColor`, and all five composition regression tests pass. A separate
+WKWebView diagnostic confirms that the custom tint restores native selection
+colors and preserves marked text and first-responder status after a
+dark-to-light switch. The tester confirmed on the physical iPad that candidate
+text is visible, then requested the shared blue accent shown in their reference.
+The color update builds for both simulator and device with Xcode 27. Runtime
+inspection on iPadOS 26.5 confirms `WKScrollView` uses sRGB (66, 107, 242),
+matching `#426BF2` sampled from the reference image.
 
 ## Local Xcode 27 build
 

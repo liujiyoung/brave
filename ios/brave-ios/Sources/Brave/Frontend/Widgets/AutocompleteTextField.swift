@@ -88,6 +88,7 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     super.init(frame: .zero)
     self.semanticContentAttribute = .forceLeftToRight
     self.textAlignment = .left
+    self.tintColor = .browserTextInputTint
 
     super.delegate = self
     super.addTarget(
