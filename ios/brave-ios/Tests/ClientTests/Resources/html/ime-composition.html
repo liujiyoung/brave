@@ -4,14 +4,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>中文输入法回归测试</title>
 <style>
+  :root { color-scheme: light; background: white; color: black; }
+  :root[data-theme="dark"] { color-scheme: dark; background: #121212; color: white; }
   body { font: 18px system-ui; max-width: 850px; margin: 32px auto; padding: 16px; }
   textarea, [contenteditable] { box-sizing: border-box; width: 100%; min-height: 130px;
-    padding: 12px; border: 1px solid #777; border-radius: 8px; font: inherit; }
+    padding: 12px; border: 1px solid #777; border-radius: 8px; font: inherit;
+    color: inherit; background: transparent; caret-color: auto; }
   pre { white-space: pre-wrap; font-size: 13px; }
 </style>
 <h1>中文输入法回归测试</h1>
 <p>使用中文拼音输入“你好，世界”，测试候选词方向键、回车确认、Escape 取消、退格和连续输入。
 分别检查普通文本框与富文本编辑区。下方记录真实输入事件，不主动修改输入内容。</p>
+<p>将 iPad 或 Brave 切为深色模式，分别检查浅色、深色网页中第一候选词的文字和高亮背景。
+输入过程中切换系统外观，再检查候选确认、取消、切换标签和重新加载后的输入。</p>
+<p><label for="theme">网页配色（不改变浏览器主题）</label>
+<select id="theme"><option value="light">浅色网页、黑色文字</option>
+<option value="dark">深色网页、白色文字</option></select></p>
 <label for="plain">普通文本框</label>
 <textarea id="plain"></textarea>
 <p id="rich-label">富文本编辑区</p>
@@ -21,6 +29,9 @@
 <script>
   const events = [];
   const output = document.querySelector('#events');
+  document.querySelector('#theme').addEventListener('change', event => {
+    document.documentElement.dataset.theme = event.target.value;
+  });
   let scheduled = false;
   function record(event) {
     events.push({ ms: Math.round(performance.now()), field: event.target.id,
